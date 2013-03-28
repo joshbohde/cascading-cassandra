@@ -245,8 +245,17 @@ public class CassandraScheme extends Scheme<JobConf, RecordReader, OutputCollect
     FileInputFormat.addInputPaths(conf, getPath().toString());
     conf.setInputFormat(ColumnFamilyInputFormat.class);
 
-    ConfigHelper.setRangeBatchSize(conf, 100);
-    ConfigHelper.setInputSplitSize(conf, 30);
+    if (this.settings.containsKey("cassandra.range.batch.size")) {
+        ConfigHelper.setRangeBatchSize(conf, Integer.parseInt(this.settings.get("cassandra.range.batch.size")));
+    }else{
+        ConfigHelper.setRangeBatchSize(conf, 100);
+    }
+
+    if (this.settings.containsKey("cassandra.input.split.size")) {
+        ConfigHelper.setInputSplitSize(conf, Integer.parseInt(this.settings.get("cassandra.input.split.size")));
+    }else{
+        ConfigHelper.setInputSplitSize(conf, 30);
+    }
     ConfigHelper.setInputRpcPort(conf, port);
     ConfigHelper.setInputInitialAddress(conf, host);
 
