@@ -31,7 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.apache.cassandra.auth.IAuthenticator;
-import org.apache.cassandra.config.ConfigurationException;
+import org.apache.cassandra.exceptions.ConfigurationException;
 import org.apache.cassandra.db.IColumn;
 import org.apache.cassandra.db.marshal.AbstractType;
 import org.apache.cassandra.db.marshal.TypeParser;
@@ -154,7 +154,7 @@ public class ColumnFamilyRecordReader extends RecordReader<ByteBuffer, SortedMap
             // create connection using thrift
             String location = getLocation();
             socket = new TSocket(location, ConfigHelper.getInputRpcPort(conf));
-            TTransport transport = ConfigHelper.getInputTransportFactory(conf).openTransport(socket);
+            TTransport transport = ConfigHelper.getInputTransportFactory(conf).openTransport(socket, conf);
             TBinaryProtocol binaryProtocol = new TBinaryProtocol(transport);
             client = new Cassandra.Client(binaryProtocol);
 
@@ -358,7 +358,7 @@ public class ColumnFamilyRecordReader extends RecordReader<ByteBuffer, SortedMap
                 IColumn column = unthriftify(cosc);
                 map.put(column.name(), column);
             }
-            return new Pair<ByteBuffer, SortedMap<ByteBuffer, IColumn>>(ks.key, map);
+            return Pair.create(ks.key, map);
         }
     }
 

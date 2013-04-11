@@ -1,10 +1,10 @@
 package com.ifesdjeen.cascading.cassandra.hadoop;
 
-import org.apache.cassandra.config.ConfigurationException;
-
 import org.apache.cassandra.db.IColumn;
 import org.apache.cassandra.db.marshal.AbstractType;
 import org.apache.cassandra.db.marshal.TypeParser;
+import org.apache.cassandra.exceptions.SyntaxException;
+import org.apache.cassandra.exceptions.ConfigurationException;
 
 import org.apache.cassandra.thrift.*;
 
@@ -75,6 +75,8 @@ public class CassandraHelper {
             if (cd.getValidation_class() != null && !cd.getValidation_class().isEmpty()) {
                 try {
                     validators.put(cd.name, TypeParser.parse(cd.getValidation_class()));
+                } catch (SyntaxException e) {
+                    throw new IOException(e);
                 } catch (ConfigurationException e) {
                     throw new IOException(e);
                 }
@@ -97,6 +99,8 @@ public class CassandraHelper {
         if (this.defaultValidatorType == null) {
             try {
                 this.defaultValidatorType = TypeParser.parse(this.getCfDef().getDefault_validation_class());
+            } catch (SyntaxException e) {
+                throw new RuntimeException(e);
             } catch (ConfigurationException e) {
                 throw new RuntimeException(e);
             }
